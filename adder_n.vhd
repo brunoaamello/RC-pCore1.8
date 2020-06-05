@@ -1,8 +1,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.adder_utils.all;
+use work.functions.log2;
+
 use work.basic_types.std_logic_matrix;
+
+use work.adder_utils.all;
 
 entity adder_n is
 	generic(
@@ -22,13 +25,13 @@ end entity adder_n;
 
 architecture rca of adder_n is
 
-signal icout, icin: std_logic_vector(n-1 downto 0);
+	signal icout, icin: std_logic_vector(n-1 downto 0);
 
 begin
 
-cout <= icout(n-1);
-icin(0) <= cin;
-icin(n-1 downto 1) <= icout(n-2 downto 0);
+	cout <= icout(n-1);
+	icin(0) <= cin;
+	icin(n-1 downto 1) <= icout(n-2 downto 0);
 
 ADDITION:
 	for i in 0 to n-1 generate
@@ -70,19 +73,19 @@ CARRY_PROPAGATION_0:
 		for i in n-1 downto 0 generate
 		
 CARRY_PROPAGATION_1:
-			if(kogge_stone_active(i, stage)) generate
+			if(i >= (2**(stage-1))) generate
 MERGERS:		merger port map(
 					gin=>g(stage-1, i),
-					ginprev=>g(stage-1, kogge_stone_source(i, stage)),
+					ginprev=>g(stage-1, i-(2**(stage-1))),
 					pin=>p(stage-1, i),
-					pinprev=>p(stage-1, kogge_stone_source(i, stage)),
+					pinprev=>p(stage-1, i-(2**(stage-1))),
 					gout=>g(stage, i),
 					pout=>p(stage, i)
 				);
 			end generate CARRY_PROPAGATION_1;
 			
 CARRY_PROPAGATION_2:
-			if(not kogge_stone_active(i, stage)) generate
+			if(not (i >= (2**(stage-1)))) generate
 				g(stage, i) <= g(stage-1, i);
 				p(stage, i) <= p(stage-1, i);
 			end generate CARRY_PROPAGATION_2;
@@ -141,19 +144,19 @@ CARRY_PROPAGATION_0_0:
 		for i in n-1 downto 0 generate
 		
 CARRY_PROPAGATION_0_1:
-			if(han_carlsson_active(i, stage)) generate
+			if(i >= (2**(stage-1)) and ((i mod 2) = 1)) generate
 MERGERS_0:	merger port map(
 									gin=>g(stage-1, i),
-									ginprev=>g(stage-1, han_carlsson_source(i, stage)),
+									ginprev=>g(stage-1, i-(2**(stage-1))),
 									pin=>p(stage-1, i),
-									pinprev=>p(stage-1, han_carlsson_source(i, stage)),
+									pinprev=>p(stage-1, i-(2**(stage-1))),
 									gout=>g(stage, i),
 									pout=>p(stage, i)
 									);
 			end generate CARRY_PROPAGATION_0_1;
 			
 CARRY_PROPAGATION_0_2:
-			if(not han_carlsson_active(i, stage)) generate
+			if(not (i >= (2**(stage-1)) and ((i mod 2) = 1))) generate
 				g(stage, i) <= g(stage-1, i);
 				p(stage, i) <= p(stage-1, i);
 			end generate CARRY_PROPAGATION_0_2;
@@ -235,20 +238,20 @@ CARRY_PROPAGATION_0:
 		for i in n-1 downto 0 generate
 		
 CARRY_PROPAGATION_1:
-			if(sklansky_active(i, stage)) generate
+			if(i mod (2**stage) >= 2**(stage-1)) generate
 MERGERS:	
 				merger port map(
 									gin=>g(stage-1, i),
-									ginprev=>g(stage-1, sklansky_source(i, stage)),
+									ginprev=>g(stage-1, (i/(2**stage))*(2**stage) + (2**(stage-1)) - 1),
 									pin=>p(stage-1, i),
-									pinprev=>p(stage-1, sklansky_source(i, stage)),
+									pinprev=>p(stage-1, (i/(2**stage))*(2**stage) + (2**(stage-1)) - 1),
 									gout=>g(stage, i),
 									pout=>p(stage, i)
 									);
 			end generate CARRY_PROPAGATION_1;
 			
 CARRY_PROPAGATION_2:
-			if(not sklansky_active(i, stage)) generate
+			if(not (i mod (2**stage) >= 2**(stage-1))) generate
 				g(stage, i) <= g(stage-1, i);
 				p(stage, i) <= p(stage-1, i);
 			end generate CARRY_PROPAGATION_2;
