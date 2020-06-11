@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.std_match;
 
-use work.base_components.all;
+use work.base_components.adder_n;
 
 entity adder_subtractor is
 	generic(
