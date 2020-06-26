@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
 -- n -> n bits generic
 
 entity mux_n1 is
@@ -10,8 +11,8 @@ entity mux_n1 is
 	);
 	port(
 		sel: 				in std_logic;
-		data_in0: 			in std_logic_vector(n-1 downto 0);
-		data_in1: 			in std_logic_vector(n-1 downto 0);
+		data_in0: 		in std_logic_vector(n-1 downto 0);
+		data_in1: 		in std_logic_vector(n-1 downto 0);
 		data_out: 		out std_logic_vector(n-1 downto 0)
 	);
 end entity mux_n1;

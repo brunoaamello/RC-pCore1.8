@@ -4,7 +4,6 @@ use ieee.numeric_std.all;
 
 use work.basic_types.std_logic_vector8_array;
 
--- n -> n bit generic
 -- s -> s bits selector generic
 
 entity mux_8s is

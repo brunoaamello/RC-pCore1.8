@@ -6,7 +6,8 @@ use work.basic_types.all;
 use work.latch_b;
 use work.latch_n;
 use work.ff_d_c;
-use work.reg;
+use work.reg_n;
+use work.mux_n1;
 use work.mux_8s;
 use work.mux_16s;
 use work.decoder_n;
@@ -39,13 +40,47 @@ package primitives is
 		);
 	end component;
 	
-	component reg is 
+	component ff_d_cen is
+		port(
+			D: 		in std_logic;
+			clk_in: 	in std_logic;
+			clk_en:	in std_logic;
+			clr: 		in std_logic;
+			Q:			out std_logic
+		);
+	end component;
+	
+	component reg_n is 
 		generic(n: integer := 8);
 		port(
 			D: 		in std_logic_vector(n-1 downto 0);
 			clk_in: 	in std_logic;
 			clr: 		in std_logic;
 			Q:			out std_logic_vector(n-1 downto 0)			
+		);
+	end component;
+	
+	component reg_nen is 
+		generic(n: integer := 8);
+		port(
+			D: 		in std_logic_vector(n-1 downto 0);
+			clk_in: 	in std_logic;
+			clk_en:	in std_logic;
+			clr: 		in std_logic;
+			Q:			out std_logic_vector(n-1 downto 0)			
+		);
+	end component;
+
+	
+	component mux_n1 is
+		generic( 
+			n:	integer := 8
+		);
+		port(
+			sel: 				in std_logic;
+			data_in0: 		in std_logic_vector(n-1 downto 0);
+			data_in1: 		in std_logic_vector(n-1 downto 0);
+			data_out: 		out std_logic_vector(n-1 downto 0)
 		);
 	end component;
 	

@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.adder_n;
 
 entity adder_tester is
-	generic(n : integer := 8);
+	generic(n : integer := 16);
 	port(clk: in std_logic;
 		  correct: out boolean;
 		  fos: inout std_logic_vector(n downto 0));
@@ -14,7 +14,7 @@ architecture assertive of adder_tester is
 
 	component adder_n is
 		generic(
-			n: integer := 17
+			n: integer := 16
 		);
 		port(
 			a: in std_logic_vector(n-1 downto 0);

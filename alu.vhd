@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.functions.or_reduce;
-use work.alu_components.all;
+use work.adder_subtractor;
 
 entity alu is
 	generic(n : integer := 8);
