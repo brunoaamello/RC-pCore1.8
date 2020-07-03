@@ -89,20 +89,20 @@ package base_components is
 			);
 	end component;
 	
---	component alu is
---		generic(n : integer := 8);
---		port(	signal A: in std_logic_vector(n-1 downto 0);
---				signal B: in std_logic_vector(n-1 downto 0);
---				signal Cin: in std_logic;
---				signal op: in std_logic_vector(3 downto 0);
---				signal S: out std_logic_vector(n-1 downto 0);
---				signal WC: out std_logic;
---				signal Cout: out std_logic;
---				signal lz: out std_logic;
---				signal ez: out std_logic;
---				signal gz: out std_logic
---			);
---	end component;
+	component alu is
+		generic(n : integer := 8);
+		port(	signal A: in std_logic_vector(n-1 downto 0);
+				signal B: in std_logic_vector(n-1 downto 0);
+				signal Cin: in std_logic;
+				signal op: in std_logic_vector(3 downto 0);
+				signal S: out std_logic_vector(n-1 downto 0);
+				signal WC: out std_logic;
+				signal Cout: out std_logic;
+				signal lz: out std_logic;
+				signal ez: out std_logic;
+				signal gz: out std_logic
+			);
+	end component;
 	
 	component sign_extend_nm is
 		generic(

@@ -49,9 +49,21 @@ architecture simple of core is
 	constant JAL_RD1: std_logic_vector(3 downto 0) := "1101";
 	
 ---- Execute signals
-	signal 	EX_DPH, EX_A, EX_B: std_logic_vector(7 downto 0);
+	signal 	EX_ADDR, EX_PC: std_logic_vector(15 downto 0);
+	signal 	EX_DPH, EX_A, EX_B, EX_ALUout: std_logic_vector(7 downto 0);
 	signal 	EX_RD0, EX_RD1, EX_ALUop: std_logic_vector(3 downto 0);
-	signal	EX_WRimm, EX_WR0, EX_WR1, EX_LW, EX_SW, EX_LWC, EX_SWC, EX_JAL, EX_C: std_logic;
+	signal	EX_WRimm, EX_WR0, EX_WR1, EX_LW, EX_SW, EX_LWC, EX_SWC, EX_JAL, EX_C, EX_WC: std_logic;
+	
+---- Memory/WB0 signals
+	signal 	MEM_ADDR, MEM_PC: std_logic_vector(15 downto 0);
+	signal 	MEM_A, MEM_ALUout, MEM_WB0_STD, DM_DATA_OUT, MEM_DATA: std_logic_vector(7 downto 0);
+	signal 	MEM_RD0, MEM_RD1: std_logic_vector(3 downto 0);
+	signal	MEM_WRimm, MEM_WR0, MEM_WR1, MEM_LW, MEM_SW, MEM_LWC, MEM_SWC, MEM_JAL: std_logic;
+	
+---- Write Back 1 signals
+	signal	WB1_PCL, WB1_DATA_OUT: std_logic_vector(7 downto 0);
+	signal 	WB1_RD1: std_logic_vector(3 downto 0);
+	signal 	WB1_WR1, WB1_JAL: std_logic;
 	
 begin
 
@@ -82,7 +94,7 @@ PLUS2_ADDER:
 	
 -- PC offset Adder
 PC_OFFSER_ADDER:
-	adder_n generic map(n=>16) port map(a=>IF_PC_OFFSET, b=>IF_PC_OUT, cin=>IF_PC_OFFSET(15), s=>IF_PC1, cout=>open);
+	adder_n generic map(n=>16) port map(a=>IF_PC_OFFSET, b=>IF_PC_OUT, cin=>'0', s=>IF_PC1, cout=>open);
 	
 -- PC adder mux
 PC_ADD_MUX:
@@ -90,7 +102,7 @@ PC_ADD_MUX:
 	
 -- PM address mux
 PM_ADDR_MUX:
-	mux_n1 generic map(n=>16) port map(sel=>nIF_PC_WE, data_in0=>IF_PC_OUT, data_in1=>IF_PM_ADDR1, data_out=>IF_PC);
+	mux_n1 generic map(n=>16) port map(sel=>nIF_PC_WE, data_in0=>IF_PC_OUT, data_in1=>IF_PM_ADDR1, data_out=>PM_ADDR);
 	
 -- PM data mux
 PM_DATA_MUX:
@@ -119,7 +131,7 @@ CONTROL_UNIT_DECL:
 	control_unit port map(	opcode=>INSTRUCTION(15 downto 11), C=>C, GZ=>GZ, EZ=>EZ, LZ=>LZ, 
 									RET=>RET, BRANCH=>BRANCH, MSB_SEL=>MSB_SEL, RD_OP=>RD_OP, RT=>RT,
 									STD_IMM=>STD_IMM, IMM=>IMM, WRimm=>WRimm, WR0=>WR0, WR1=>WR1,
-									LW=>LW, SW=>SW, LWC=>LWC, ALUop=>ALUop, JAL=>JAL);
+									LW=>LW, SW=>SW, SWC=>SWC, LWC=>LWC, ALUop=>ALUop, JAL=>JAL);
 
 -- Sign extender
 	ID_SE_IN(11 downto 1) <= INSTRUCTION(10 downto 0);
@@ -166,7 +178,7 @@ ID_DATA_MUX:
 	
 -- Register Bank
 REG_BANK:
-	register_bank port map(clk=>clk, ra=>RB_RA, rb=>RB_RB, wr=>RB_WR, rd=>RB_RD, wr_data=>RB_DATA, A=>RB_DATA, B=>RB_DATA, DPH=>RB_DPH);
+	register_bank port map(clk=>clk, ra=>RB_RA, rb=>RB_RB, wr=>RB_WR, rd=>RB_RD, wr_data=>RB_DATA, A=>RB_A, B=>RB_B, DPH=>RB_DPH);
 
 -- IF_PC_RET Signal
 	IF_PC_RET(15 downto 8) <= RB_A;
@@ -196,6 +208,10 @@ ID_RD1_MUX:
 	mux_n1 generic map(n=>4) port map(sel=>JAL, data_in0=>ID_RD, data_in1=>JAL_RD1, data_out=>ID_RD1);
 	
 ---- ID/EX Registers
+
+-- PC register
+ID_EX_PC_REG:
+	reg_n generic map(n=>16) port map(D=>ID_PC, clk_in=>clk, clr=>rst, Q=>EX_PC);
 
 -- DPH register
 ID_EX_DPH_REG:
@@ -255,8 +271,148 @@ ID_EX_JAL_REG:
 
 -- Carry register
 ID_EX_C_REG:
-	ff_d_c port map(D=>C, clk_in=>clk, clr=>rst, Q=>EX_C);
+	ff_d_cen port map(D=>C, clk_in=>clk, clk_en=>EX_WC, clr=>rst, Q=>EX_C);
+
 	
+---- Execute
+
+--	Address signal
+	EX_ADDR(15 downto 8) <= EX_DPH;
+	EX_ADDR(7 downto 0) <= EX_B;
+	
+-- ALU
+ALU_DECL:
+	alu generic map(n=>8) port map(A=>EX_A, B=>EX_B, Cin=>EX_C, op=>EX_ALUop,
+											 S=>EX_ALUout, WC=>EX_WC, Cout=>C, lz=>LZ, 
+											 ez=>EZ, gz=>GZ);
+
+---- EX/MEM Registers
+
+-- PC register
+EX_MEM_PC_REG:
+	reg_n generic map(n=>16) port map(D=>EX_PC, clk_in=>clk, clr=>rst, Q=>MEM_PC);
+	
+-- Memory Address register
+EX_MEM_ADDR_REG:
+	reg_n generic map(n=>16) port map(D=>EX_ADDR, clk_in=>clk, clr=>rst, Q=>MEM_ADDR);
+	
+-- ALUout register
+EX_MEM_ALUout_REG:
+	reg_n generic map(n=>8) port map(D=>EX_ALUout, clk_in=>clk, clr=>rst, Q=>MEM_ALUout);
+
+-- A register
+EX_MEM_A_REG:
+	reg_n generic map(n=>8) port map(D=>EX_A, clk_in=>clk, clr=>rst, Q=>MEM_A);
+	
+-- RD0 register
+EX_MEM_RD0_REG:
+	reg_n generic map(n=>4) port map(D=>EX_RD0, clk_in=>clk, clr=>rst, Q=>MEM_RD0);
+
+-- RD1 register
+EX_MEM_RD1_REG:
+	reg_n generic map(n=>4) port map(D=>EX_RD1, clk_in=>clk, clr=>rst, Q=>MEM_RD1);
+
+-- WRimm register
+EX_MEM_WRIMM_REG:
+	ff_d_c port map(D=>EX_WRimm, clk_in=>clk, clr=>rst, Q=>MEM_WRimm);
+	
+-- WR0 register
+EX_MEM_WR0_REG:
+	ff_d_c port map(D=>EX_WR0, clk_in=>clk, clr=>rst, Q=>MEM_WR0);
+	
+-- WR1 register
+EX_MEM_WR1_REG:
+	ff_d_c port map(D=>EX_WR1, clk_in=>clk, clr=>rst, Q=>MEM_WR1);
+	
+-- LW register
+EX_MEM_LW_REG:
+	ff_d_c port map(D=>EX_LW, clk_in=>clk, clr=>rst, Q=>MEM_LW);
+	
+-- SW register
+EX_MEM_SW_REG:
+	ff_d_c port map(D=>EX_SW, clk_in=>clk, clr=>rst, Q=>MEM_SW);
+	
+-- LWC register
+EX_MEM_LWC_REG:
+	ff_d_c port map(D=>EX_LWC, clk_in=>clk, clr=>rst, Q=>MEM_LWC);
+	
+-- SWC register
+EX_MEM_SWC_REG:
+	ff_d_c port map(D=>EX_SWC, clk_in=>clk, clr=>rst, Q=>MEM_SWC);
+	
+-- JAL register
+EX_MEM_JAL_REG:
+	ff_d_c port map(D=>EX_JAL, clk_in=>clk, clr=>rst, Q=>MEM_JAL);
+
+	
+---- Memory/Write Back 0
+
+-- Data memory interface
+	dmem_addr <= MEM_ADDR;
+	dmem_data_in <= MEM_A;
+	dmem_wr <= MEM_SW;
+	dmem_rd <= MEM_LW;
+	DM_DATA_OUT <= dmem_data_out;
+	
+-- Immediate Mux
+MEM_IMM_MUX:
+	mux_n1 generic map(n=>8) port map(sel=>MEM_WRimm, data_in0=>MEM_ALUout, data_in1=>MEM_ADDR(7 downto 0), data_out=>MEM_WB0_STD);
+
+-- JAL Mux
+MEM_JAL_MUX:
+	mux_n1 generic map(n=>8) port map(sel=>MEM_JAL, data_in0=>MEM_WB0_STD, data_in1=>MEM_PC(15 downto 8), data_out=>WB0_DATA);
+	
+-- RD0 signal
+	WB0_RD <= MEM_RD0;
+
+-- Program memory signals
+	PM_WR <= MEM_SWC;
+	PM_RD <= MEM_LWC;
+	PM_DATA_IN <= MEM_A;
+	IF_PM_ADDR1 <= MEM_ADDR;
+
+-- WR0 Signal
+	ID_WR0 <= MEM_WR0;
+	
+-- Memory select Mux
+MEM_MEM_SEL_MUX:
+	mux_n1 generic map(n=>8) port map(sel=>MEM_LWC, data_in0=>DM_DATA_OUT, data_in1=>PM_DATA_OUT, data_out=>MEM_DATA);
+	
+	
+---- MEM/WB1 Registers
+	
+-- PCL register
+MEM_WB1_PCL_REG:
+	reg_n generic map(n=>8) port map(D=>MEM_PC(7 downto 0), clk_in=>clk, clr=>rst, Q=>WB1_PCL);
+	
+-- Data register
+MEM_WB1_DATA_REG:
+	reg_n generic map(n=>8) port map(D=>MEM_DATA, clk_in=>clk, clr=>rst, Q=>WB1_DATA_OUT);
+
+-- RD1 register
+MEM_WB1_RD1_REG:
+	reg_n generic map(n=>4) port map(D=>MEM_RD1, clk_in=>clk, clr=>rst, Q=>WB1_RD1);	
+	
+-- WR1 register
+MEM_WB1_WR1_REG:
+	ff_d_c port map(D=>MEM_WR1, clk_in=>clk, clr=>rst, Q=>WB1_WR1);
+	
+-- JAL register
+MEM_WB1_JAL_REG:
+	ff_d_c port map(D=>MEM_JAL, clk_in=>clk, clr=>rst, Q=>WB1_JAL);
+	
+	
+---- Write Back 1
+	
+	-- WR1 Signal
+	ID_WR1 <= WB1_WR1;
+	
+	-- RD1 Signal
+	WB1_RD <= WB1_RD1;
+	
+	-- Data Mux
+WB1_DATA_MUX:
+	mux_n1 generic map(n=>8) port map(sel=>WB1_JAL, data_in0=>WB1_DATA_OUT, data_in1=>WB1_PCL, data_out=>WB1_DATA);
 	
 	
 end architecture simple;
