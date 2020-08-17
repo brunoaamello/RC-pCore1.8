@@ -31,6 +31,20 @@ architecture simple of alu is
 	constant XOR_OP : std_logic_vector(3 downto 0) := "1000";
 	constant NOT_OP : std_logic_vector(3 downto 0) := "1001";
 	
+	component adder_subtractor is
+		generic(
+			n: integer := 8
+		);
+		port(
+			a: in std_logic_vector(n-1 downto 0);
+			b: in std_logic_vector(n-1 downto 0);
+			cin: in std_logic;
+			sub: in std_logic;
+			s: out std_logic_vector(n-1 downto 0);
+			cout: out std_logic
+		);
+	end component;
+	
 	
 	signal sl_S, sr_S, addsub_S, nand_S, nor_S, xor_S, not_S, i_S: std_logic_vector(n-1 downto 0);
 	signal sub: std_logic;

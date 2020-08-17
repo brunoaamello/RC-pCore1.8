@@ -19,6 +19,19 @@ entity adder_subtractor is
 end entity adder_subtractor;
 
 architecture simple of adder_subtractor is
+	component adder_n is
+		generic(
+			n: integer := 8
+		);
+		port(
+			a: in std_logic_vector(n-1 downto 0);
+			b: in std_logic_vector(n-1 downto 0);
+			cin: in std_logic;
+			s: out std_logic_vector(n-1 downto 0);
+			cout: out std_logic
+		);
+	end component;
+
 	signal i_a, i_b, i_s: std_logic_vector(n-1 downto 0);
 	signal i_cin, i_cout: std_logic;
 begin

@@ -55,7 +55,8 @@ CORE_DECL:
 					  dmem_rd=>i_dmem_rd, dmem_data_out=>i_dmem_data_out);
 					  
 PROGRAM_MEMORY_DECL:
-	program_memory port map(clk=>clk, address=>i_pmem_addr, data_in=>i_pmem_data_in,
+	program_memory generic map (msb_file=>"fibonacci_msb.hex", lsb_file=>"fibonacci_lsb.hex") 
+						port map(clk=>clk, address=>i_pmem_addr, data_in=>i_pmem_data_in,
 									wr=>i_pmem_wr, rd=>i_pmem_rd, data_out=>i_pmem_data_out);
 
 DATA_MEMORY_DECL:

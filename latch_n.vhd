@@ -15,12 +15,26 @@ port(
 end entity latch_n;
 
 architecture latch_b_arch of latch_n is
+
+	component latch_b is
+		port(
+			latch_enable:	in std_logic;
+			data_in: 		in std_logic;
+			data_out: 		out std_logic
+		);
+	end component;
+	
+	signal i_data_out: std_logic_vector(n-1 downto 0);
+	
 	begin
+	
+	data_out <= i_data_out;
+	
 BLOCK_ASSEMBLY:
 	for i in 0 to n-1 generate
 	begin
 	BASE_LATCHES:
-		latch_b port map(latch_enable=>(latch_enable), data_in=>(data_in(i)), data_out=>(data_out(i)));
+		latch_b port map(latch_enable=>(latch_enable), data_in=>(data_in(i)), data_out=>(i_data_out(i)));
 	end generate BLOCK_ASSEMBLY;
 	
 end architecture latch_b_arch;

@@ -10,7 +10,7 @@ entity adder_tester is
 		  fos: inout std_logic_vector(n downto 0));
 end entity adder_tester;
 
-architecture assertive of adder_tester is
+architecture exhaustive of adder_tester is
 
 	component adder_n is
 		generic(
@@ -66,6 +66,90 @@ ADDER:
 				end if;
 			else
 				a <= a + 1;
+			end if;
+		end if;
+	end process;
+	
+
+end architecture exhaustive;
+
+architecture assertive of adder_tester is
+
+	component adder_n is
+		generic(
+			n: integer := 16
+		);
+		port(
+			a: in std_logic_vector(n-1 downto 0);
+			b: in std_logic_vector(n-1 downto 0);
+			cin: in std_logic;
+			s: out std_logic_vector(n-1 downto 0);
+			cout: out std_logic
+		);
+end component;
+	constant n_tests: integer := 10;
+	type test_set_type is array(n_tests-1 downto 0, 1 downto 0) of integer;
+	
+	constant test_set: test_set_type := (	(0, 0),
+														(32767, 1),
+														(4582, -1548),
+														(15478, 14857),
+														(65461, -32123),
+														(0, 1),
+														(1, -1),
+														(45781, 14205),
+														(14789, -5412),
+														(1454, -8)
+													);
+	
+	signal test_it: integer := 0;
+
+
+	signal a: unsigned(n-1 downto 0);
+	signal b: signed(n-1 downto 0);
+	signal s: unsigned(n-1 downto 0);
+	signal i_a, i_s, i_av: integer := 0;
+	signal i_b: integer := 0;
+	signal al, bl, os: std_logic_vector(n-1 downto 0);
+	signal cin : std_logic := '0';
+	signal cout: std_logic;
+
+begin
+	
+	a <= to_unsigned(i_a, n);
+	b <= to_signed(i_b, n);
+	i_av <= i_a+i_b;
+	i_s <= to_integer(s);
+	
+	al <= std_logic_vector(a);
+	bl <= std_logic_vector(b);
+	
+	fos(n) <= cout;
+	fos(n-1 downto 0) <= os;
+	
+	s <= unsigned(os);
+	
+ADDER: 
+	adder_n generic map(n=>n) port map(a=>al,b=>bl,s=>os,cin=>cin,cout=>cout);
+
+	process(clk) is
+		variable er : boolean := false;
+	begin
+		if(rising_edge(clk)) then
+			if(i_s /= i_av) then
+				er := true;
+			end if;
+			assert (i_s = i_av) report "Adder Failure" severity failure;
+			correct <= not er;
+			er := false;
+			i_a <= test_set(test_it, 1);
+			i_b <= test_set(test_it, 0);
+			
+			if(test_it >= n_tests-1) then
+				test_it <= 0;
+				assert(false) report "Finished Simulation" severity failure;
+			else
+				test_it <= test_it + 1;
 			end if;
 		end if;
 	end process;

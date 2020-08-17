@@ -14,7 +14,7 @@ entity memory16 is
 end entity memory16;
 
 architecture simple of memory16 is
-	signal ram: std_logic_vector8_array((2**16)-1 downto 0);
+	signal ram: std_logic_vector8_array(0 to (2**16)-1);
 	signal address_int: integer range 0 to (2**16)-1;
 begin
 	address_int <= to_integer(unsigned(address));

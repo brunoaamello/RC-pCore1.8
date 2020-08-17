@@ -39,6 +39,9 @@ package compute_components is
 	
 	
 	component memory15 is
+		generic(
+				mem_file: string :="blank15.mif"
+		);
 		port(	signal clk: in std_logic;
 				signal address: in std_logic_vector(14 downto 0);
 				signal data_in: in std_logic_vector(7 downto 0);
@@ -50,6 +53,10 @@ package compute_components is
 	
 	
 	component program_memory is
+		generic(
+				msb_file: string :="blank15.mif";
+				lsb_file: string :="blank15.mif"
+		);
 		port(	signal clk: in std_logic;
 				signal address: in std_logic_vector(15 downto 0);
 				signal data_in: in std_logic_vector(7 downto 0);

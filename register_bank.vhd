@@ -5,7 +5,7 @@ use work.basic_types.std_logic_vector8_array;
 
 use work.primitives.latch_n;
 use work.primitives.decoder_n;
-use work.mux_8s;
+use work.primitives.mux_8s;
 
 entity register_bank is
 	port(	signal clk: in std_logic;
@@ -21,7 +21,7 @@ entity register_bank is
 end entity register_bank;
 
 architecture simple of register_bank is
-	CONSTANT DPH_ADDRESS: integer := 13;
+	CONSTANT DPH_ADDRESS: integer := 15;
 	
 	signal wr_en: std_logic;
 	

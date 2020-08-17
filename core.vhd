@@ -367,7 +367,8 @@ MEM_JAL_MUX:
 
 -- Program memory signals
 	PM_WR <= MEM_SWC;
-	PM_RD <= MEM_LWC;
+	--PM_RD <= MEM_LWC;
+	PM_RD <= not MEM_SWC;
 	PM_DATA_IN <= MEM_A;
 	IF_PM_ADDR1 <= MEM_ADDR;
 

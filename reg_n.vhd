@@ -13,6 +13,14 @@ entity reg_n is
 end entity reg_n;
 
 architecture simple of reg_n is
+	component ff_d_c is
+		port(
+			D: 		in std_logic;
+			clk_in: 	in std_logic;
+			clr: 		in std_logic;
+			Q:			out std_logic
+		);
+	end component;
 begin
 FF_GEN:
 	for i in n-1 downto 0 generate
