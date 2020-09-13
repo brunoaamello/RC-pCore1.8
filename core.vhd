@@ -43,7 +43,7 @@ architecture simple of core is
 	signal 	RB_DATA, RB_A, RB_B, RB_DPH, WB0_DATA, WB1_DATA, ID_IMM, ID_IMM0, ID_IMM1, ID_B: std_logic_vector(7 downto 0);
 	signal	RB_RA, RB_RB, RB_RD, ID_RD, ID_RD0, ID_RD1, ID_RB1, WB0_RD, WB1_RD: std_logic_vector(3 downto 0);
 	signal	ID_MSB_VEC, ID_RD_MSB_VEC: std_logic_vector(0 downto 0);
-	signal 	ID_MSB, ID_RD_MSB, ID_WR0, ID_WR1, RB_WR: std_logic;
+	signal 	ID_MSB, ID_RD_MSB, ID_WR0, ID_WR1, RB_WR, ID_SMSB, ID_SMSB_EN: std_logic;
 	
 	constant JAL_RD0: std_logic_vector(3 downto 0) := "1110";
 	constant JAL_RD1: std_logic_vector(3 downto 0) := "1101";
@@ -131,7 +131,7 @@ CONTROL_UNIT_DECL:
 	control_unit port map(	opcode=>INSTRUCTION(15 downto 11), C=>C, GZ=>GZ, EZ=>EZ, LZ=>LZ, 
 									RET=>RET, BRANCH=>BRANCH, MSB_SEL=>MSB_SEL, RD_OP=>RD_OP, RT=>RT,
 									STD_IMM=>STD_IMM, IMM=>IMM, WRimm=>WRimm, WR0=>WR0, WR1=>WR1,
-									LW=>LW, SW=>SW, SWC=>SWC, LWC=>LWC, ALUop=>ALUop, JAL=>JAL);
+									LW=>LW, SW=>SW, SWC=>SWC, LWC=>LWC, ALUop=>ALUop, JAL=>JAL, SMSB=>ID_SMSB);
 
 -- Sign extender
 	ID_SE_IN(11 downto 1) <= INSTRUCTION(10 downto 0);
@@ -140,8 +140,9 @@ SIGN_EXTENDER:
 	sign_extend_nm generic map(n=>12, m=>16) port map(A=>ID_SE_IN, B=>IF_PC_OFFSET);
 	
 -- MSB register
+	ID_SMSB_EN <= INSTRUCTION(9) and ID_SMSB;
 MSB_REG:
-	ff_d_cen port map(D=>INSTRUCTION(10), clk_in=>clk, clk_en=>INSTRUCTION(9), clr=>rst, Q=>ID_MSB);
+	ff_d_cen port map(D=>INSTRUCTION(10), clk_in=>clk, clk_en=>ID_SMSB_EN, clr=>rst, Q=>ID_MSB);
 
 --	MSB RD Mux
 	ID_MSB_VEC(0) <= ID_MSB;

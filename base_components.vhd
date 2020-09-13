@@ -84,6 +84,7 @@ package base_components is
 				signal SW:			out std_logic;
 				signal LWC:			out std_logic;
 				signal SWC:			out std_logic;
+				signal SMSB:		out std_logic;
 				signal ALUop:		out std_logic_vector(3 downto 0);
 				signal JAL:			out std_logic
 			);

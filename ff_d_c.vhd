@@ -13,6 +13,23 @@ entity ff_d_c is
 	);
 end entity ff_d_c;
 
+
+architecture asynchronous_new of ff_d_c is
+	signal iQ : std_logic;
+	begin
+	process(clk_in, clr) is
+		begin
+		iQ <= D;
+		if(std_match(clr, '1')) then
+			if(falling_edge(clk_in)) then
+				Q<=iQ;
+			end if;
+		else
+			Q<='0';
+		end if;
+	end process;
+end architecture asynchronous_new;
+
 architecture asynchronous of ff_d_c is
 	begin
 	process(clk_in, clr) is
@@ -26,4 +43,3 @@ architecture asynchronous of ff_d_c is
 		end if;
 	end process;
 end architecture asynchronous;
-

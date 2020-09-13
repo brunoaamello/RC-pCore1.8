@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 package basic_types is
 --	type std_logic_vector_array is array(natural range <>) of std_logic_vector(natural range <>);
+	type std_logic_vector19_array is array(natural range <>) of std_logic_vector(18 downto 0);
 	type std_logic_vector18_array is array(natural range <>) of std_logic_vector(17 downto 0);
 	type std_logic_vector16_array is array(natural range <>) of std_logic_vector(15 downto 0);
 	type std_logic_vector8_array is array(natural range <>) of std_logic_vector(7 downto 0);
