@@ -52,7 +52,7 @@ architecture simple of core is
 	signal 	EX_ADDR, EX_PC: std_logic_vector(15 downto 0);
 	signal 	EX_DPH, EX_A, EX_B, EX_ALUout: std_logic_vector(7 downto 0);
 	signal 	EX_RD0, EX_RD1, EX_ALUop: std_logic_vector(3 downto 0);
-	signal	EX_WRimm, EX_WR0, EX_WR1, EX_LW, EX_SW, EX_LWC, EX_SWC, EX_JAL, EX_C, EX_WC: std_logic;
+	signal	EX_WRimm, EX_WR0, EX_WR1, EX_LW, EX_SW, EX_LWC, EX_SWC, EX_JAL, EX_C, EX_WS, EX_LZ, EX_EZ, EX_GZ: std_logic;
 	
 ---- Memory/WB0 signals
 	signal 	MEM_ADDR, MEM_PC: std_logic_vector(15 downto 0);
@@ -272,10 +272,26 @@ ID_EX_JAL_REG:
 
 -- Carry register
 ID_EX_C_REG:
-	ff_d_cen port map(D=>C, clk_in=>clk, clk_en=>EX_WC, clr=>rst, Q=>EX_C);
+	ff_d_cen port map(D=>C, clk_in=>clk, clk_en=>EX_WS, clr=>rst, Q=>EX_C);
+
+
+---- EX/ID latches
+
+-- Less than zero latch
+EX_ID_LZ_LATCH:
+	latch_b port map(data_in=>EX_LZ ,data_out=>LZ ,latch_enable=>EX_WS);
+
+-- Equal zero latch
+EX_ID_EZ_LATCH:
+	latch_b port map(data_in=>EX_EZ ,data_out=>EZ ,latch_enable=>EX_WS);
+
+-- Greater than zero latch
+EX_ID_GZ_LATCH:
+	latch_b port map(data_in=>EX_GZ ,data_out=>GZ ,latch_enable=>EX_WS);
 
 	
 ---- Execute
+
 
 --	Address signal
 	EX_ADDR(15 downto 8) <= EX_DPH;
@@ -284,8 +300,8 @@ ID_EX_C_REG:
 -- ALU
 ALU_DECL:
 	alu generic map(n=>8) port map(A=>EX_A, B=>EX_B, Cin=>EX_C, op=>EX_ALUop,
-											 S=>EX_ALUout, WC=>EX_WC, Cout=>C, lz=>LZ, 
-											 ez=>EZ, gz=>GZ);
+											 S=>EX_ALUout, WS=>EX_WS, Cout=>C, lz=>EX_LZ, 
+											 ez=>EX_EZ, gz=>EX_GZ);
 
 ---- EX/MEM Registers
 

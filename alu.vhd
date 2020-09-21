@@ -11,7 +11,7 @@ entity alu is
 			signal Cin: in std_logic;
 			signal op: in std_logic_vector(3 downto 0);
 			signal S: out std_logic_vector(n-1 downto 0);
-			signal WC: out std_logic;
+			signal WS: out std_logic;
 			signal Cout: out std_logic;
 			signal lz: out std_logic;
 			signal ez: out std_logic;
@@ -21,6 +21,7 @@ entity alu is
 end entity alu;
 
 architecture simple of alu is
+	constant NOP : std_logic_vector(3 downto 0) := "0000";
 	constant SL_OP : std_logic_vector(3 downto 0) := "0001";
 	constant SR_OP : std_logic_vector(3 downto 0) := "0010";
 	constant ADD_OP : std_logic_vector(3 downto 0) := "0011";
@@ -76,8 +77,8 @@ ADD_SUB:
 				cin;
 	
 -- Carry out logic
-	WC <= '1' when addsub_op else
-			'0';
+	WS <= '0' when std_match(op, NOP) else
+			'1';
 	Cout <= 	iC when addsub_op else
 				Cin;
 				
