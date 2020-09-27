@@ -28,7 +28,7 @@ architecture simple of core is
 	signal 	ALUop: std_logic_vector(3 downto 0);
 	signal 	RET, BRANCH, MSB_SEL, RD_OP, RT, STD_IMM,
 				IMM, WRimm, WR0, WR1, LW, SW, LWC, SWC, 
-				JAL, C, LZ, EZ, GZ: std_logic;
+				JAL, C, LZ, EZ, GZ, WS: std_logic;
 
 ---- Instruction Fetch signals
 	signal 	IF_PC_RET, IF_PC, IF_PC_IN, IF_PC_OUT,
@@ -131,7 +131,8 @@ CONTROL_UNIT_DECL:
 	control_unit port map(	opcode=>INSTRUCTION(15 downto 11), C=>C, GZ=>GZ, EZ=>EZ, LZ=>LZ, 
 									RET=>RET, BRANCH=>BRANCH, MSB_SEL=>MSB_SEL, RD_OP=>RD_OP, RT=>RT,
 									STD_IMM=>STD_IMM, IMM=>IMM, WRimm=>WRimm, WR0=>WR0, WR1=>WR1,
-									LW=>LW, SW=>SW, SWC=>SWC, LWC=>LWC, ALUop=>ALUop, JAL=>JAL, SMSB=>ID_SMSB);
+									LW=>LW, SW=>SW, SWC=>SWC, LWC=>LWC, ALUop=>ALUop, JAL=>JAL, 
+									SMSB=>ID_SMSB, WS=>WS);
 
 -- Sign extender
 	ID_SE_IN(11 downto 1) <= INSTRUCTION(10 downto 0);
@@ -274,6 +275,10 @@ ID_EX_JAL_REG:
 ID_EX_C_REG:
 	ff_d_cen port map(D=>C, clk_in=>clk, clk_en=>EX_WS, clr=>rst, Q=>EX_C);
 
+-- WS register
+ID_EX_WS_REG:
+	ff_d_c port map(D=>WS, clk_in=>clk, clr=>rst, Q=>EX_WS);
+
 
 ---- EX/ID latches
 
@@ -300,7 +305,7 @@ EX_ID_GZ_LATCH:
 -- ALU
 ALU_DECL:
 	alu generic map(n=>8) port map(A=>EX_A, B=>EX_B, Cin=>EX_C, op=>EX_ALUop,
-											 S=>EX_ALUout, WS=>EX_WS, Cout=>C, lz=>EX_LZ, 
+											 S=>EX_ALUout, Cout=>C, lz=>EX_LZ, 
 											 ez=>EX_EZ, gz=>EX_GZ);
 
 ---- EX/MEM Registers

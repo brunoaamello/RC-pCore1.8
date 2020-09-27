@@ -11,7 +11,6 @@ entity alu is
 			signal Cin: in std_logic;
 			signal op: in std_logic_vector(3 downto 0);
 			signal S: out std_logic_vector(n-1 downto 0);
-			signal WS: out std_logic;
 			signal Cout: out std_logic;
 			signal lz: out std_logic;
 			signal ez: out std_logic;
@@ -76,9 +75,6 @@ ADD_SUB:
 	icin <= '0' when std_match(op, ADD_OP) else
 				cin;
 	
--- Carry out logic
-	WS <= '0' when std_match(op, NOP) else
-			'1';
 	Cout <= 	iC when addsub_op else
 				Cin;
 				
@@ -112,6 +108,6 @@ ADD_SUB:
 -- LZ, EZ, GZ flag check
 	lz <= i_S(7);
 	ez <= not or_reduce(i_S);
-	gz <= or_reduce(i_S);
+	gz <= or_reduce(i_S(6 downto 0));
 	
 end architecture simple;

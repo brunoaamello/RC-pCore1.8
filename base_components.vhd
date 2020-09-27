@@ -86,7 +86,8 @@ package base_components is
 				signal SWC:			out std_logic;
 				signal SMSB:		out std_logic;
 				signal ALUop:		out std_logic_vector(3 downto 0);
-				signal JAL:			out std_logic
+				signal JAL:			out std_logic;
+				signal WS:			out std_logic
 			);
 	end component;
 	
@@ -97,7 +98,6 @@ package base_components is
 				signal Cin: in std_logic;
 				signal op: in std_logic_vector(3 downto 0);
 				signal S: out std_logic_vector(n-1 downto 0);
-				signal WS: out std_logic;
 				signal Cout: out std_logic;
 				signal lz: out std_logic;
 				signal ez: out std_logic;
