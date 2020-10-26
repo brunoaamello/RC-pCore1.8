@@ -58,7 +58,7 @@ use ieee.std_logic_1164.all;
 		signal s0, cout0, cout1: std_logic;
 	begin
 		s0 <= A xor B;
-		cout0 <= A and a;
+		cout0 <= A and B;
 		S <= s0 xor CI;
 		cout1 <= s0 and CI; 
 		CO <= cout0 or cout1;
