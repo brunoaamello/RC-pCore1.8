@@ -6,7 +6,7 @@ It is still unlicenced as I need to do some cleaning up, but I plan to release i
 The assembler is available [here](https://github.com/brunoaamello/RC-pCore1.8_assembler/).
 
 The Article is available [here](https://github.com/brunoaamello/RC-pCore1.8/releases/download/v1.01/Mello_Bruno_Arantes_de_Achilles.pdf). It is in portuguese, but I am considering translating chapter 2.1 which contains the architecture. Tables and architecture images are mostly readable regardless. 
-In Appendix B, there is some example of assembly code for the architecture. 
+In Appendix B, there are some examples of assembly code for the architecture. 
 I think the biggest highlight in this project was the study that I did on different types of adders in chapter 2.2.1.
 
 Esse é um processador de 8 bits. Foi feito para meu projeto de TCC no curso de Engenharia de Computação na Universidade de São Paulo (Campus São Carlos).
