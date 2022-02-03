@@ -59,8 +59,12 @@ PROGRAM_MEMORY_DECL:
 						port map(clk=>clk, address=>i_pmem_addr, data_in=>i_pmem_data_in,
 									wr=>i_pmem_wr, rd=>i_pmem_rd, data_out=>i_pmem_data_out);
 
+--DATA_MEMORY_DECL:
+--	memory16 port map(clk=>clk, address=>i_dmem_addr, data_in=>i_dmem_data_in,
+--							wr=>i_dmem_wr, rd=>i_dmem_rd, data_out=>i_dmem_data_out);
+							
 DATA_MEMORY_DECL:
-	memory16 port map(clk=>clk, address=>i_dmem_addr, data_in=>i_dmem_data_in,
+	memory14 port map(clk=>clk, address=>i_dmem_addr(13 downto 0), data_in=>i_dmem_data_in,
 							wr=>i_dmem_wr, rd=>i_dmem_rd, data_out=>i_dmem_data_out);
 
 	

@@ -4,6 +4,8 @@ use ieee.std_logic_1164.all;
 use work.core;
 use work.memory16;
 use work.memory15;
+use work.memory14;
+use work.memory12;
 use work.program_memory;
 
 package compute_components is
@@ -47,7 +49,21 @@ package compute_components is
 				signal data_in: in std_logic_vector(7 downto 0);
 				signal wr: in std_logic;
 				signal rd: in std_logic;
-				signal data_out: out std_logic_vector(14 downto 0)			
+				signal data_out: out std_logic_vector(7 downto 0)			
+		);
+	end component;
+	
+	
+	component memory14 is
+		generic(
+				mem_file: string :="blank14.mif"
+		);
+		port(	signal clk: in std_logic;
+				signal address: in std_logic_vector(13 downto 0);
+				signal data_in: in std_logic_vector(7 downto 0);
+				signal wr: in std_logic;
+				signal rd: in std_logic;
+				signal data_out: out std_logic_vector(7 downto 0)			
 		);
 	end component;
 	
